@@ -5,6 +5,11 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public final class OptionDataFactory {
     public OptionData createFrom(final Option option) {
-        return new OptionData(option.type(), option.name(), option.description(), option.required());
+        return new OptionData(
+                option.type(),
+                option.name(),
+                option.description(),
+                option.required()
+        );
     }
 }
