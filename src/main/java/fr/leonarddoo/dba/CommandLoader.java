@@ -106,10 +106,8 @@ public class CommandLoader {
         var factory = new OptionDataFactory();
 
         Arrays.stream(classToInspect.getAnnotationsByType(Option.class))
-                .forEach(a -> {
-                    var option = factory.createFrom(a);
-                    options.add(option);
-                });
+                .map(factory::createFrom)
+                .forEach(options::add);
 
         return options;
     }
