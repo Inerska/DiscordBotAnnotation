@@ -5,14 +5,15 @@ import fr.leonarddoo.dba.annotation.Option;
 import fr.leonarddoo.dba.error.InvalidGuildError;
 import fr.leonarddoo.dba.error.InvalidJDAError;
 import fr.leonarddoo.dba.exception.InvalidCommandException;
+import fr.leonarddoo.dba.factory.OptionDataFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,10 +24,8 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class CommandLoader {
 
-    private final JDA jda;
-
     protected static CommandLoader instance;
-
+    private final JDA jda;
     private final Dispatcher dispatcher;
 
     public CommandLoader(JDA jda) {
@@ -38,6 +37,7 @@ public class CommandLoader {
 
     /**
      * Load all commands in a guild with annotation in classes
+     *
      * @param guild   Guild where commands will be loaded
      * @param classes List of classes where commands are
      */
@@ -53,6 +53,7 @@ public class CommandLoader {
 
     /**
      * Load all commands in a guild with annotation in classes
+     *
      * @param classes List of classes where commands are
      */
     public void loadCommands(Class<?>... classes) throws InvalidCommandException {
@@ -67,6 +68,7 @@ public class CommandLoader {
 
     /**
      * Create all commands with annotation in classes
+     *
      * @param classes List of classes where commands are
      * @return List of SlashCommandData
      */
@@ -94,20 +96,21 @@ public class CommandLoader {
 
     /**
      * Create all options with annotation in class
-     * @param clazz Class where options are
-     * @return List of OptionData
+     *
+     * @param classToInspect Class where options are
+     * @return Iterable of OptionData
      */
-    private List<OptionData> createOptions(Class<?> clazz) {
+    private List<OptionData> createOptions(final Class<?> classToInspect) {
 
-        List<OptionData> options = new ArrayList<>();
+        var options = new ArrayList<OptionData>();
+        var factory = new OptionDataFactory();
 
-        for (Option a : clazz.getAnnotationsByType(Option.class)) {
-            OptionType optType = a.type();
-            String optName = a.name();
-            String optDesc = a.description();
-            boolean optReq = a.required();
-            options.add(new OptionData(optType, optName, optDesc, optReq));
-        }
+        Arrays.stream(classToInspect.getAnnotationsByType(Option.class))
+                .forEach(a -> {
+                    var option = factory.createFrom(a);
+                    options.add(option);
+                });
+
         return options;
     }
 }
